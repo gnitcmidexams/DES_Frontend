@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://backend-pn9o.onrender.com/api';
+const API_BASE_URL = 'https://des-backend-n4p7.onrender.com/api';
 
 document.getElementById('excelFile').addEventListener('change', handleFileUpload);
 document.getElementById('generateButton').addEventListener('click', generateQuestionPaper);

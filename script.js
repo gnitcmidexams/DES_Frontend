@@ -528,7 +528,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                         new TextRun({
                             text: `Subject Code: ${sessionStorage.getItem('subjectCode') || paperDetails.subjectCode}`,
                             bold: true,
-                            font: 'Arial'
+                            font: 'Times New Roman'
                         })
                     ],
                     alignment: AlignmentType.LEFT,
@@ -550,7 +550,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                             text: `B.Tech ${paperDetails.year} Year ${paperDetails.semester} Semester ${midTermText} Examinations ${monthyear}`,
                             bold: true,
                             size: 28,
-                            font: 'Arial'
+                            font: 'Times New Roman'
                         })
                     ],
                     alignment: AlignmentType.CENTER,
@@ -560,7 +560,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                     children: [
                         new TextRun({
                             text: `(${paperDetails.regulation} Regulation)`,
-                            font: 'Arial'
+                            font: 'Times New Roman'
                         })
                     ],
                     alignment: AlignmentType.CENTER,
@@ -587,7 +587,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: "Time: 90 Min.",
                                                     bold: true,
-                                                    font: 'Arial'
+                                                    font: 'Times New Roman'
                                                 })
                                             ],
                                             alignment: AlignmentType.LEFT
@@ -602,7 +602,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: "Max Marks: 20",
                                                     bold: true,
-                                                    font: 'Arial'
+                                                    font: 'Times New Roman'
                                                 })
                                             ],
                                             alignment: AlignmentType.RIGHT
@@ -634,7 +634,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: `Subject: ${paperDetails.subject}`,
                                                     bold: true,
-                                                    font: 'Arial'
+                                                    font: 'Times New Roman'
                                                 })
                                             ],
                                             alignment: AlignmentType.LEFT
@@ -644,7 +644,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: `Branch: ${sessionStorage.getItem('branch') || paperDetails.branch}`,
                                                     bold: true,
-                                                    font: 'Arial'
+                                                    font: 'Times New Roman'
                                                 })
                                             ],
                                             alignment: AlignmentType.LEFT,
@@ -660,7 +660,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: `Date: ${sessionStorage.getItem('examDate') || ''}`,
                                                     bold: true,
-                                                    font: 'Arial'
+                                                    font: 'Times New Roman'
                                                 })
                                             ],
                                             alignment: AlignmentType.RIGHT
@@ -677,13 +677,13 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                 }),
                 new Paragraph({
                     children: [
-                        new TextRun({ text: "Note: ", bold: true, font: 'Arial' }),
-                        new TextRun({ text: "Question paper consists of 2 ½ Units, Answer any 4 full questions out of 6 questions.", font: 'Arial' })
+                        new TextRun({ text: "Note: ", bold: true, font: 'Times New Roman' }),
+                        new TextRun({ text: "Question paper consists of 2 ½ Units, Answer any 4 full questions out of 6 questions.", font: 'Times New Roman' })
                     ],
                     spacing: { after: 100 }
                 }),
                 new Paragraph({
-                    children: [new TextRun({ text: "Each question carries 5 marks and may have sub-questions.", font: 'Arial' })],
+                    children: [new TextRun({ text: "Each question carries 5 marks and may have sub-questions.", font: 'Times New Roman' })],
                     spacing: { after: 200 }
                 }),
                 new Table({
@@ -701,23 +701,23 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                             children: [
                                 new TableCell({
                                     width: { size: 10, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "S. No", alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                    children: [new Paragraph({ text: "S. No", alignment: AlignmentType.CENTER, font: 'Times New Roman' })]
                                 }),
                                 new TableCell({
                                     width: { size: 60, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "Question", alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                    children: [new Paragraph({ text: "Question", alignment: AlignmentType.CENTER, font: 'Times New Roman' })]
                                 }),
                                 new TableCell({
                                     width: { size: 8, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "Unit", alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                    children: [new Paragraph({ text: "Unit", alignment: AlignmentType.CENTER, font: 'Times New Roman' })]
                                 }),
                                 new TableCell({
                                     width: { size: 12, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "B.T Level", alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                    children: [new Paragraph({ text: "B.T Level", alignment: AlignmentType.CENTER, font: 'Times New Roman' })]
                                 }),
                                 new TableCell({
                                     width: { size: 10, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "CO", alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                    children: [new Paragraph({ text: "CO", alignment: AlignmentType.CENTER, font: 'Times New Roman' })]
                                 })
                             ],
                             tableHeader: true
@@ -726,7 +726,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                             const questionParts = q.question.split('<br>').map(part => part.trim()).filter(part => part.length > 0);
                             const cellChildren = questionParts.map(part => 
                                 new Paragraph({
-                                    children: [new TextRun({ text: part, font: 'Arial' })],
+                                    children: [new TextRun({ text: part, font: 'Times New Roman' })],
                                     alignment: AlignmentType.LEFT
                                 })
                             );
@@ -749,7 +749,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                     );
                                 } catch (error) {
                                     console.error(`Error loading image for question ${index + 1}:`, error);
-                                    cellChildren.push(new Paragraph({ text: "[Image could not be loaded]", font: 'Arial' }));
+                                    cellChildren.push(new Paragraph({ text: "[Image could not be loaded]", font: 'Times New Roman' }));
                                 }
                             }
 
@@ -757,7 +757,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                 children: [
                                     new TableCell({
                                         width: { size: 10, type: WidthType.PERCENTAGE },
-                                        children: [new Paragraph({ text: `${index + 1}`, alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                        children: [new Paragraph({ text: `${index + 1}`, alignment: AlignmentType.CENTER, font: 'Times New Roman' })]
                                     }),
                                     new TableCell({
                                         width: { size: 60, type: WidthType.PERCENTAGE },
@@ -765,15 +765,15 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                     }),
                                     new TableCell({
                                         width: { size: 8, type: WidthType.PERCENTAGE },
-                                        children: [new Paragraph({ text: `${q.unit}`, alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                        children: [new Paragraph({ text: `${q.unit}`, alignment: AlignmentType.CENTER, font: 'Times New Roman' })]
                                     }),
                                     new TableCell({
                                         width: { size: 12, type: WidthType.PERCENTAGE },
-                                        children: [new Paragraph({ text: q.btLevel || "N/A", alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                        children: [new Paragraph({ text: q.btLevel || "N/A", alignment: AlignmentType.CENTER, font: 'Times New Roman' })]
                                     }),
                                     new TableCell({
                                         width: { size: 10, type: WidthType.PERCENTAGE },
-                                        children: [new Paragraph({ text: getCOValue(q.unit), alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                        children: [new Paragraph({ text: getCOValue(q.unit), alignment: AlignmentType.CENTER, font: 'Times New Roman' })]
                                     })
                                 ]
                             });
@@ -781,7 +781,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                     ]
                 }),
                 new Paragraph({
-                    children: [new TextRun({ text: "****ALL THE BEST****", bold: true, font: 'Arial' })],
+                    children: [new TextRun({ text: "****ALL THE BEST****", bold: true, font: 'Times New Roman' })],
                     alignment: AlignmentType.CENTER,
                     spacing: { before: 400 }
                 })

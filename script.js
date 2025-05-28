@@ -707,7 +707,8 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: "S. No",
                                                     font: 'Times New Roman',
-                                                    size: 24 // 12pt font size
+                                                    size: 24,// 12pt font size
+                                                    bold: true
                                                 })
                                             ],
                                             alignment: AlignmentType.CENTER
@@ -722,7 +723,8 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: "Question",
                                                     font: 'Times New Roman',
-                                                    size: 24 // 12pt font size
+                                                    size: 24,// 12pt font size
+                                                    bold: true
                                                 })
                                             ],
                                             alignment: AlignmentType.CENTER
@@ -737,7 +739,8 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: "Unit",
                                                     font: 'Times New Roman',
-                                                    size: 24 // 12pt font size
+                                                    size: 24,// 12pt font size
+                                                    bold: true
                                                 })
                                             ],
                                             alignment: AlignmentType.CENTER
@@ -752,7 +755,8 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: "B.T Level",
                                                     font: 'Times New Roman',
-                                                    size: 24 // 12pt font size
+                                                    size: 24,// 12pt font size
+                                                    bold: true
                                                 })
                                             ],
                                             alignment: AlignmentType.CENTER
@@ -767,7 +771,8 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: "CO",
                                                     font: 'Times New Roman',
-                                                    size: 24 // 12pt font size
+                                                    size: 24,// 12pt font size
+                                                    bold: true
                                                 })
                                             ],
                                             alignment: AlignmentType.CENTER

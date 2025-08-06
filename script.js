@@ -183,14 +183,14 @@ function displayQuestionPaper(questions, paperDetails, allowEdit = true) {
     const partAQuestions = questions.filter(q => q.part === 'A').sort((a, b) => parseInt(a.label) - parseInt(b.label));
     const partBQuestions = questions.filter(q => q.part === 'B');
 
-    // Group Part B questions by pairs for either-or choice
-    const questionPairs = [
-        { a: partBQuestions.find(q => q.label === '2' || q.label === '2a'), b: partBQuestions.find(q => q.label === '2b'), qNo: '2' },
-        { a: partBQuestions.find(q => q.label === '3' || q.label === '3a'), b: partBQuestions.find(q => q.label === '3b'), qNo: '3' },
-        { a: partBQuestions.find(q => q.label === '4' || q.label === '4a'), b: partBQuestions.find(q => q.label === '4b'), qNo: '4' },
-        { a: partBQuestions.find(q => q.label === '5' || q.label === '5a'), b: partBQuestions.find(q => q.label === '5b'), qNo: '5' },
-        { a: partBQuestions.find(q => q.label === '6' || q.label === '6a'), b: partBQuestions.find(q => q.label === '6b'), qNo: '6' },
-        { a: partBQuestions.find(q => q.label === '7' || q.label === '7a'), b: partBQuestions.find(q => q.label === '7b'), qNo: '7' }
+    // Group Part B questions by question number
+    const questionGroups = [
+        { qNo: '2', questions: partBQuestions.filter(q => q.label === '2' || q.label === '2a' || q.label === '2b') },
+        { qNo: '3', questions: partBQuestions.filter(q => q.label === '3' || q.label === '3a' || q.label === '3b') },
+        { qNo: '4', questions: partBQuestions.filter(q => q.label === '4' || q.label === '4a' || q.label === '4b') },
+        { qNo: '5', questions: partBQuestions.filter(q => q.label === '5' || q.label === '5a' || q.label === '5b') },
+        { qNo: '6', questions: partBQuestions.filter(q => q.label === '6' || q.label === '6a' || q.label === '6b') },
+        { qNo: '7', questions: partBQuestions.filter(q => q.label === '7' || q.label === '7a' || q.label === '7b') }
     ];
 
     const html = `
@@ -218,7 +218,7 @@ function displayQuestionPaper(questions, paperDetails, allowEdit = true) {
             </div>
             <hr style="border-top: 1px solid black; margin: 10px 0;">
             <p style="text-align: left; margin-top: 10px;"><strong>Note:</strong> Question paper consists of Part A (10 marks) and Part B (30 marks).</p>
-            <p style="text-align: left;">Answer all questions in Part A. For Part B has internal choice.</p>
+            <p style="text-align: left;">Answer all questions in Part A. For Part B, answer one question from each pair: 2 or 3, 4 or 5, 6 or 7. For paired questions, answer either (a) or (b); for single questions, answer the question directly.</p>
             <h4 style="text-align: left;">Part A (10 Marks)</h4>
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
                 <thead>
@@ -265,56 +265,63 @@ function displayQuestionPaper(questions, paperDetails, allowEdit = true) {
                     </tr>
                 </thead>
                 <tbody>
-                ${questionPairs.map((pair, index) => {
-                    const rows = [];
-                    if (pair.a) {
-                        rows.push(`
-                            <tr id="row-${pair.qNo}${pair.a.label.endsWith('a') || pair.a.label === pair.qNo ? 'a' : ''}">
-                                <td>${pair.a.label}</td>
-                                <td contenteditable="true" oninput="updateQuestion('${pair.a.label}', 'B', this.innerText)">
-                                    ${pair.a.question}
-                                    ${pair.a.imageDataUrl ? `
+                ${questionGroups.map((group, index) => {
+                    let rows = '';
+                    const isSingle = group.questions.length === 1 && !group.questions[0].label.includes('a') && !group.questions[0].label.includes('b');
+                    if (isSingle) {
+                        const q = group.questions[0];
+                        rows += `
+                            <tr id="row-${q.label}">
+                                <td>${q.label}</td>
+                                <td contenteditable="true" oninput="updateQuestion('${q.label}', 'B', this.innerText)">
+                                    ${q.question}
+                                    ${q.imageDataUrl ? `
                                         <br>
-                                        <div id="image-container-${pair.a.label}" style="max-width: 200px; max-height: 200px; margin-top: 5px;">
-                                            <img src="${pair.a.imageDataUrl}" style="max-width: 100%; max-height: 100%; display: block;" onload="console.log('Image displayed for question ${pair.a.label}')" onerror="console.error('Image failed to display for question ${pair.a.label}')">
+                                        <div id="image-container-${q.label}" style="max-width: 200px; max-height: 200px; margin-top: 5px;">
+                                            <img src="${q.imageDataUrl}" style="max-width: 100%; max-height: 100%; display: block;" onload="console.log('Image displayed for question ${q.label}')" onerror="console.error('Image failed to display for question ${q.label}')">
                                         </div>
                                     ` : ''}
                                 </td>
-                                <td>${pair.a.unit}</td>
-                                <td contenteditable="true" oninput="updateBTLevel('${pair.a.label}', 'B', this.innerText)">${pair.a.btLevel}</td>
-                                <td>${getCOValue(pair.a.unit)}</td>
-                                ${allowEdit ? `<td><button onclick="editQuestion('${pair.a.label}', 'B')">Edit</button></td>` : ''}
+                                <td>${q.unit}</td>
+                                <td contenteditable="true" oninput="updateBTLevel('${q.label}', 'B', this.innerText)">${q.btLevel}</td>
+                                <td>${getCOValue(q.unit)}</td>
+                                ${allowEdit ? `<td><button onclick="editQuestion('${q.label}', 'B')">Edit</button></td>` : ''}
                             </tr>
-                        `);
+                        `;
+                    } else {
+                        const subQuestions = group.questions.filter(q => q.label === `${group.qNo}a` || q.label === `${group.qNo}b`);
+                        if (subQuestions.length > 0) {
+                            subQuestions.forEach(q => {
+                                rows += `
+                                    <tr id="row-${q.label}">
+                                        <td>${q.label}</td>
+                                        <td contenteditable="true" oninput="updateQuestion('${q.label}', 'B', this.innerText)">
+                                            ${q.question}
+                                            ${q.imageDataUrl ? `
+                                                <br>
+                                                <div id="image-container-${q.label}" style="max-width: 200px; max-height: 200px; margin-top: 5px;">
+                                                    <img src="${q.imageDataUrl}" style="max-width: 100%; max-height: 100%; display: block;" onload="console.log('Image displayed for question ${q.label}')" onerror="console.error('Image failed to display for question ${q.label}')">
+                                                </div>
+                                            ` : ''}
+                                        </td>
+                                        <td>${q.unit}</td>
+                                        <td contenteditable="true" oninput="updateBTLevel('${q.label}', 'B', this.innerText)">${q.btLevel}</td>
+                                        <td>${getCOValue(q.unit)}</td>
+                                        ${allowEdit ? `<td><button onclick="editQuestion('${q.label}', 'B')">Edit</button></td>` : ''}
+                                    </tr>
+                                `;
+                            });
+                        }
                     }
-                    if (pair.b) {
-                        rows.push(`
-                            <tr id="row-${pair.qNo}b">
-                                <td>${pair.b.label}</td>
-                                <td contenteditable="true" oninput="updateQuestion('${pair.b.label}', 'B', this.innerText)">
-                                    ${pair.b.question}
-                                    ${pair.b.imageDataUrl ? `
-                                        <br>
-                                        <div id="image-container-${pair.b.label}" style="max-width: 200px; max-height: 200px; margin-top: 5px;">
-                                            <img src="${pair.b.imageDataUrl}" style="max-width: 100%; max-height: 100%; display: block;" onload="console.log('Image displayed for question ${pair.b.label}')" onerror="console.error('Image failed to display for question ${pair.b.label}')">
-                                        </div>
-                                    ` : ''}
-                                </td>
-                                <td>${pair.b.unit}</td>
-                                <td contenteditable="true" oninput="updateBTLevel('${pair.b.label}', 'B', this.innerText)">${pair.b.btLevel}</td>
-                                <td>${getCOValue(pair.b.unit)}</td>
-                                ${allowEdit ? `<td><button onclick="editQuestion('${pair.b.label}', 'B')">Edit</button></td>` : ''}
-                            </tr>
-                        `);
-                    }
-                    if (parseInt(pair.qNo) % 2 === 0 && pair.a && pair.b) {
-                        rows.push(`
+                    // Add "OR" between question pairs (2 and 3, 4 and 5, 6 and 7)
+                    if (index % 2 === 0 && index < questionGroups.length - 1) {
+                        rows += `
                             <tr>
                                 <td colspan="${allowEdit ? 6 : 5}" style="text-align: center; padding: 5px;">OR</td>
                             </tr>
-                        `);
+                        `;
                     }
-                    return rows.join('');
+                    return rows;
                 }).join('')}
                 </tbody>
             </table>
@@ -533,7 +540,7 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
     const noteHtml = `
         <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; text-align: left; font-size:14px; margin-top: 5px;">
             <p><strong>Note:</strong> Question paper consists of Part A (10 marks) and Part B (30 marks).</p>
-            <p>Answer all questions in Part A. For Part B has the internal choice</p>
+            <p>Answer all questions in Part A. For Part B, answer one question from each pair: 2 or 3, 4 or 5, 6 or 7. For paired questions, answer either (a) or (b); for single questions, answer the question directly.</p>
         </div>
     `;
     await renderBlock(noteHtml, pageWidth - 2 * margin, true);
@@ -600,21 +607,20 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
 
     await renderBlock(tableHeaderHtml, pageWidth - 2 * margin, false);
 
-    const questionPairs = [
-        { a: questions.find(q => q.label === '2' || q.label === '2a' && q.part === 'B'), b: questions.find(q => q.label === '2b' && q.part === 'B'), qNo: '2' },
-        { a: questions.find(q => q.label === '3' || q.label === '3a' && q.part === 'B'), b: questions.find(q => q.label === '3b' && q.part === 'B'), qNo: '3' },
-        { a: questions.find(q => q.label === '4' || q.label === '4a' && q.part === 'B'), b: questions.find(q => q.label === '4b' && q.part === 'B'), qNo: '4' },
-        { a: questions.find(q => q.label === '5' || q.label === '5a' && q.part === 'B'), b: questions.find(q => q.label === '5b' && q.part === 'B'), qNo: '5' },
-        { a: questions.find(q => q.label === '6' || q.label === '6a' && q.part === 'B'), b: questions.find(q => q.label === '6b' && q.part === 'B'), qNo: '6' },
-        { a: questions.find(q => q.label === '7' || q.label === '7a' && q.part === 'B'), b: questions.find(q => q.label === '7b' && q.part === 'B'), qNo: '7' }
+    const questionGroups = [
+        { qNo: '2', questions: questions.filter(q => q.part === 'B' && (q.label === '2' || q.label === '2a' || q.label === '2b')) },
+        { qNo: '3', questions: questions.filter(q => q.part === 'B' && (q.label === '3' || q.label === '3a' || q.label === '3b')) },
+        { qNo: '4', questions: questions.filter(q => q.part === 'B' && (q.label === '4' || q.label === '4a' || q.label === '4b')) },
+        { qNo: '5', questions: questions.filter(q => q.part === 'B' && (q.label === '5' || q.label === '5a' || q.label === '5b')) },
+        { qNo: '6', questions: questions.filter(q => q.part === 'B' && (q.label === '6' || q.label === '6a' || q.label === '6b')) },
+        { qNo: '7', questions: questions.filter(q => q.part === 'B' && (q.label === '7' || q.label === '7a' || q.label === '7b')) }
     ];
 
-    for (const pair of questionPairs) {
-        const questionsToRender = [];
-        if (pair.a) questionsToRender.push(pair.a);
-        if (pair.b) questionsToRender.push(pair.b);
-
-        for (const q of questionsToRender) {
+    for (let index = 0; index < questionGroups.length; index++) {
+        const group = questionGroups[index];
+        const isSingle = group.questions.length === 1 && !group.questions[0].label.includes('a') && !group.questions[0].label.includes('b');
+        if (isSingle) {
+            const q = group.questions[0];
             const rowHtml = `
                 <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; margin: 0; padding: 0;">
                     <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; padding: 0;">
@@ -631,15 +637,43 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
                                 </td>
                                 <td style="padding: 5px; border-top: 0px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; width: 8%; text-align: center; margin: 0;">${q.unit}</td>
                                 <td style="padding: 5px; border-top: 0px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; width: 12%; text-align: center; margin: 0;">${q.btLevel}</td>
-                                <td style="padding: 5px; border-top: 0px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; width: 10%; text-align: center; margin: 0;">${getCOValue(q.unit)}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             `;
             await renderBlock(rowHtml, pageWidth - 2 * margin, false);
+        } else {
+            const subQuestions = group.questions.filter(q => q.label === `${group.qNo}a` || q.label === `${group.qNo}b`);
+            if (subQuestions.length > 0) {
+                for (const q of subQuestions) {
+                    const rowHtml = `
+                        <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; margin: 0; padding: 0;">
+                            <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; padding: 0;">
+                                <tbody style="margin: 0; padding: 0; font-size:14px;">
+                                    <tr style="margin: 0; padding: 0;">
+                                        <td style="padding: 5px; border-top: 0px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; text-align: center; width: 10%; margin: 0;">${q.label}</td>
+                                        <td style="padding: 5px; font-size:14px; border-top: 0px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; width: 60%; margin: 0;">
+                                            ${q.question}
+                                            ${q.imageDataUrl ? `
+                                                <div style="max-width: 200px; max-height: 200px; margin: 0; padding: 0;">
+                                                    <img src="${q.imageDataUrl}" style="max-width: 100%; max-height: 100%; display: block; margin: 0; padding: 0;">
+                                                </div>
+                                            ` : ''}
+                                        </td>
+                                        <td style="padding: 5px; border-top: 0px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; width: 8%; text-align: center; margin: 0;">${q.unit}</td>
+                                        <td style="padding: 5px; border-top: 0px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; width: 12%; text-align: center; margin: 0;">${q.btLevel}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    await renderBlock(rowHtml, pageWidth - 2 * margin, false);
+                }
+            }
         }
-        if (parseInt(pair.qNo) % 2 === 0 && pair.a && pair.b) {
+        // Add "OR" between question pairs (2 and 3, 4 and 5, 6 and 7)
+        if (index % 2 === 0 && index < questionGroups.length - 1) {
             const orHtml = `
                 <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; text-align: center; font-size:14px;">
                     <p>OR</p>
@@ -650,7 +684,7 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
     }
 
     const footerHtml = `
-        <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; text-align: center; margin-top: 20px;">
+        <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; text-align: center; font-size:14px;">
             <p style="font-weight: bold;">****ALL THE BEST****</p>
         </div>
     `;
@@ -675,14 +709,13 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
     }
 
     const partAQuestions = questions.filter(q => q.part === 'A').sort((a, b) => parseInt(a.label) - parseInt(b.label));
-    const partBQuestions = questions.filter(q => q.part === 'B');
-    const questionPairs = [
-        { a: partBQuestions.find(q => q.label === '2' || q.label === '2a'), b: partBQuestions.find(q => q.label === '2b'), qNo: '2' },
-        { a: partBQuestions.find(q => q.label === '3' || q.label === '3a'), b: partBQuestions.find(q => q.label === '3b'), qNo: '3' },
-        { a: partBQuestions.find(q => q.label === '4' || q.label === '4a'), b: partBQuestions.find(q => q.label === '4b'), qNo: '4' },
-        { a: partBQuestions.find(q => q.label === '5' || q.label === '5a'), b: partBQuestions.find(q => q.label === '5b'), qNo: '5' },
-        { a: partBQuestions.find(q => q.label === '6' || q.label === '6a'), b: partBQuestions.find(q => q.label === '6b'), qNo: '6' },
-        { a: partBQuestions.find(q => q.label === '7' || q.label === '7a'), b: partBQuestions.find(q => q.label === '7b'), qNo: '7' }
+    const questionGroups = [
+        { qNo: '2', questions: questions.filter(q => q.part === 'B' && (q.label === '2' || q.label === '2a' || q.label === '2b')) },
+        { qNo: '3', questions: questions.filter(q => q.part === 'B' && (q.label === '3' || q.label === '3a' || q.label === '3b')) },
+        { qNo: '4', questions: questions.filter(q => q.part === 'B' && (q.label === '4' || q.label === '4a' || q.label === '4b')) },
+        { qNo: '5', questions: questions.filter(q => q.part === 'B' && (q.label === '5' || q.label === '5a' || q.label === '5b')) },
+        { qNo: '6', questions: questions.filter(q => q.part === 'B' && (q.label === '6' || q.label === '6a' || q.label === '6b')) },
+        { qNo: '7', questions: questions.filter(q => q.part === 'B' && (q.label === '7' || q.label === '7a' || q.label === '7b')) }
     ];
 
     const doc = new Document({
@@ -846,7 +879,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                 new Paragraph({
                     children: [
                         new TextRun({ text: "Note: ", bold: true, font: 'Arial' }),
-                        new TextRun({ text: "Question paper consists of Part A (10 marks) and Part B (30 marks). Answer all questions in Part A. For Part B, You have Internal Choice", font: 'Arial' })
+                        new TextRun({ text: "Question paper consists of Part A (10 marks) and Part B (30 marks). Answer all questions in Part A. For Part B, answer one question from each pair: 2 or 3, 4 or 5, 6 or 7. For paired questions, answer either (a) or (b); for single questions, answer the question directly.", font: 'Arial' })
                     ],
                     spacing: { after: 100 }
                 }),
@@ -886,10 +919,6 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                 new TableCell({
                                     width: { size: 12, type: WidthType.PERCENTAGE },
                                     children: [new Paragraph({ text: "B.T Level", alignment: AlignmentType.CENTER, font: 'Arial' })]
-                                }),
-                                new TableCell({
-                                    width: { size: 10, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "CO", alignment: AlignmentType.CENTER, font: 'Arial' })]
                                 })
                             ],
                             tableHeader: true
@@ -942,10 +971,6 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                     new TableCell({
                                         width: { size: 12, type: WidthType.PERCENTAGE },
                                         children: [new Paragraph({ text: q.btLevel || "N/A", alignment: AlignmentType.CENTER, font: 'Arial' })]
-                                    }),
-                                    new TableCell({
-                                        width: { size: 10, type: WidthType.PERCENTAGE },
-                                        children: [new Paragraph({ text: getCOValue(q.unit), alignment: AlignmentType.CENTER, font: 'Arial' })]
                                     })
                                 ]
                             });
@@ -984,21 +1009,15 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                 new TableCell({
                                     width: { size: 12, type: WidthType.PERCENTAGE },
                                     children: [new Paragraph({ text: "B.T Level", alignment: AlignmentType.CENTER, font: 'Arial' })]
-                                }),
-                                new TableCell({
-                                    width: { size: 10, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "CO", alignment: AlignmentType.CENTER, font: 'Arial' })]
                                 })
                             ],
                             tableHeader: true
                         }),
-                        ...await Promise.all(questionPairs.map(async pair => {
+                        ...await Promise.all(questionGroups.map(async (group, index) => {
                             const rows = [];
-                            const questionsToRender = [];
-                            if (pair.a) questionsToRender.push(pair.a);
-                            if (pair.b) questionsToRender.push(pair.b);
-
-                            for (const q of questionsToRender) {
+                            const isSingle = group.questions.length === 1 && !group.questions[0].label.includes('a') && !group.questions[0].label.includes('b');
+                            if (isSingle) {
+                                const q = group.questions[0];
                                 const questionParts = q.question.split('<br>').map(part => part.trim()).filter(part => part.length > 0);
                                 const cellChildren = questionParts.map(part => 
                                     new Paragraph({
@@ -1046,16 +1065,68 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                         new TableCell({
                                             width: { size: 12, type: WidthType.PERCENTAGE },
                                             children: [new Paragraph({ text: q.btLevel || "N/A", alignment: AlignmentType.CENTER, font: 'Arial' })]
-                                        }),
-                                        new TableCell({
-                                            width: { size: 10, type: WidthType.PERCENTAGE },
-                                            children: [new Paragraph({ text: getCOValue(q.unit), alignment: AlignmentType.CENTER, font: 'Arial' })]
                                         })
                                     ]
                                 }));
-                            }
+                            } else {
+                                const subQuestions = group.questions.filter(q => q.label === `${group.qNo}a` || q.label === `${group.qNo}b`);
+                                if (subQuestions.length > 0) {
+                                    for (const q of subQuestions) {
+                                        const questionParts = q.question.split('<br>').map(part => part.trim()).filter(part => part.length > 0);
+                                        const cellChildren = questionParts.map(part => 
+                                            new Paragraph({
+                                                children: [new TextRun({ text: part, font: 'Arial' })],
+                                                alignment: AlignmentType.LEFT
+                                            })
+                                        );
 
-                            if (parseInt(pair.qNo) % 2 === 0 && pair.a && pair.b) {
+                                        if (q.imageDataUrl) {
+                                            try {
+                                                const response = await fetch(q.imageDataUrl);
+                                                const arrayBuffer = await response.arrayBuffer();
+                                                cellChildren.push(
+                                                    new Paragraph({
+                                                        children: [
+                                                            new ImageRun({
+                                                                data: arrayBuffer,
+                                                                transformation: { width: 200, height: 200 }
+                                                            })
+                                                        ],
+                                                        alignment: AlignmentType.CENTER,
+                                                        spacing: { before: 100 }
+                                                    })
+                                                );
+                                            } catch (error) {
+                                                console.error(`Error loading image for question ${q.label}:`, error);
+                                                cellChildren.push(new Paragraph({ text: "[Image could not be loaded]", font: 'Arial' }));
+                                            }
+                                        }
+
+                                        rows.push(new TableRow({
+                                            children: [
+                                                new TableCell({
+                                                    width: { size: 10, type: WidthType.PERCENTAGE },
+                                                    children: [new Paragraph({ text: q.label, alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                                }),
+                                                new TableCell({
+                                                    width: { size: 60, type: WidthType.PERCENTAGE },
+                                                    children: cellChildren
+                                                }),
+                                                new TableCell({
+                                                    width: { size: 8, type: WidthType.PERCENTAGE },
+                                                    children: [new Paragraph({ text: `${q.unit}`, alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                                }),
+                                                new TableCell({
+                                                    width: { size: 12, type: WidthType.PERCENTAGE },
+                                                    children: [new Paragraph({ text: q.btLevel || "N/A", alignment: AlignmentType.CENTER, font: 'Arial' })]
+                                                })
+                                            ]
+                                        }));
+                                    }
+                                }
+                            }
+                            // Add "OR" between question pairs (2 and 3, 4 and 5, 6 and 7)
+                            if (index % 2 === 0 && index < questionGroups.length - 1) {
                                 rows.push(new TableRow({
                                     children: [
                                         new TableCell({

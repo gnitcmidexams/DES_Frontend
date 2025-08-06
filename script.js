@@ -4,7 +4,6 @@ document.getElementById('excelFile').addEventListener('change', handleFileUpload
 document.getElementById('generateButton').addEventListener('click', generateQuestionPaper);
 document.getElementById('downloadButton').addEventListener('click', downloadQuestionPaper);
 
-// Function to show notifications below a specific element
 function showNotification(message, type = 'info', targetElement, duration = null) {
     const notification = document.createElement('div');
     notification.innerText = message;

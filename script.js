@@ -89,7 +89,6 @@ async function generateQuestionPaper() {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Error generating question paper');
 
-        // Process Part A questions
         const partAQuestions = await Promise.all(data.partA.map(async q => {
             if (q.imageUrl) {
                 q.imageDataUrl = await fetchImageDataUrl(q.imageUrl);
@@ -97,7 +96,6 @@ async function generateQuestionPaper() {
             return { ...q, part: 'A' };
         }));
 
-        // Process Part B questions
         const partBQuestions = await Promise.all(data.partB.map(async q => {
             if (q.imageUrl) {
                 q.imageDataUrl = await fetchImageDataUrl(q.imageUrl);
@@ -105,7 +103,6 @@ async function generateQuestionPaper() {
             return { ...q, part: 'B' };
         }));
 
-        // Combine questions for storage
         const allQuestions = [...partAQuestions, ...partBQuestions];
         data.paperDetails.paperType = paperType;
 
@@ -178,11 +175,9 @@ function displayQuestionPaper(questions, paperDetails, allowEdit = true) {
         }
     };
 
-    // Filter questions for Part A and Part B
     const partAQuestions = questions.filter(q => q.part === 'A').sort((a, b) => parseInt(a.label) - parseInt(b.label));
     const partBQuestions = questions.filter(q => q.part === 'B');
 
-    // Group Part B questions by question number
     const questionGroups = [
         { qNo: '2', questions: partBQuestions.filter(q => q.label === '2' || q.label === '2a' || q.label === '2b') },
         { qNo: '3', questions: partBQuestions.filter(q => q.label === '3' || q.label === '3a' || q.label === '3b') },
@@ -312,7 +307,6 @@ function displayQuestionPaper(questions, paperDetails, allowEdit = true) {
                             });
                         }
                     }
-                    // Add "OR" between question pairs (2 and 3, 4 and 5, 6 and 7)
                     if (index % 2 === 0 && index < questionGroups.length - 1) {
                         rows += `
                             <tr>
@@ -481,14 +475,11 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
     const margin = 9;
     const maxContentHeight = pageHeight - 2 * margin;
     let currentYPosition = margin;
-    let isFirstPage = true;
 
     const checkPageOverflow = async (contentHeight) => {
         if (currentYPosition + contentHeight > maxContentHeight) {
             pdf.addPage();
             currentYPosition = margin;
-            isFirstPage = false;
-            await renderBlock(tableHeaderHtml, pageWidth - 2 * margin, false);
         }
     };
 
@@ -544,7 +535,6 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
     `;
     await renderBlock(noteHtml, pageWidth - 2 * margin, true);
 
-    // Part A
     const partAHeaderHtml = `
         <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; text-align: left; font-size: 12px;">
             <h4 style="text-align: left;">Part A (10 Marks)</h4>
@@ -553,11 +543,11 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
     await renderBlock(partAHeaderHtml, pageWidth - 2 * margin, true);
 
     const tableHeaderHtml = `
-        <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica;">
+        <div style="width: ${pageWidth - 2 * margin}mm; font-family: Times New Roman;">
             <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; padding: 0;">
                 <thead>
                     <tr style="background-color: #f2f2f2; font-size: 12px;">
-                        <th style="padding: 5px; border: 1px solid black; width: 10%; text-align: center; margin: 0;">S. No</th>
+                        <th style="padding: 5px; border: 1px solid black; width: 10%; text-align: center; margin: 0;">S.No</th>
                         <th style="padding: 5px; border: 1px solid black; width: 70%; text-align: center; margin: 0;">Question</th>
                         <th style="padding: 5px; border: 1px solid black; width: 10%; text-align: center; margin: 0;">Unit</th>
                         <th style="padding: 5px; border: 1px solid black; width: 10%; text-align: center; margin: 0;">B.T Level</th>
@@ -571,11 +561,11 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
     const partAQuestions = questions.filter(q => q.part === 'A').sort((a, b) => parseInt(a.label) - parseInt(b.label));
     for (const q of partAQuestions) {
         const rowHtml = `
-            <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; margin: 0; padding: 0;">
+            <div style="width: ${pageWidth - 2 * margin}mm; font-family: Times New Roman; margin: 0; padding: 0;">
                 <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; padding: 0;">
                     <tbody style="margin: 0; padding: 0; font-size: 12px;">
                         <tr style="margin: 0; padding: 0;">
-                            <td style="padding: 5px; border: 1px solid black; text-align: center; width: 10%; margin: 0;">${q.label}</td>
+                            <td style="padding: 5px; border: 1px solid black; width: 10%; text-align: center; margin: 0;">${q.label}</td>
                             <td style="padding: 5px; font-size: 12px; border: 1px solid black; width: 70%; text-align: left; margin: 0;">
                                 ${q.question}
                                 ${q.imageDataUrl ? `
@@ -594,7 +584,6 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
         await renderBlock(rowHtml, pageWidth - 2 * margin, false);
     }
 
-    // Part B
     const partBHeaderHtml = `
         <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; text-align: left; font-size: 12px;">
             <h4 style="text-align: left;">Part B (30 Marks)</h4>
@@ -619,11 +608,11 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
         if (isSingle) {
             const q = group.questions[0];
             const rowHtml = `
-                <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; margin: 0; padding: 0;">
+                <div style="width: ${pageWidth - 2 * margin}mm; font-family: Times New Roman; margin: 0; padding: 0;">
                     <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; padding: 0;">
                         <tbody style="margin: 0; padding: 0; font-size: 12px;">
                             <tr style="margin: 0; padding: 0;">
-                                <td style="padding: 5px; border: 1px solid black; text-align: center; width: 10%; margin: 0;">${q.label}</td>
+                                <td style="padding: 5px; border: 1px solid black; width: 10%; text-align: center; margin: 0;">${q.label}</td>
                                 <td style="padding: 5px; font-size: 12px; border: 1px solid black; width: 70%; text-align: left; margin: 0;">
                                     ${q.question}
                                     ${q.imageDataUrl ? `
@@ -645,11 +634,11 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
             if (subQuestions.length > 0) {
                 for (const q of subQuestions) {
                     const rowHtml = `
-                        <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; margin: 0; padding: 0;">
+                        <div style="width: ${pageWidth - 2 * margin}mm; font-family: Times New Roman; margin: 0; padding: 0;">
                             <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; padding: 0;">
                                 <tbody style="margin: 0; padding: 0; font-size: 12px;">
                                     <tr style="margin: 0; padding: 0;">
-                                        <td style="padding: 5px; border: 1px solid black; text-align: center; width: 10%; margin: 0;">${q.label}</td>
+                                        <td style="padding: 5px; border: 1px solid black; width: 10%; text-align: center; margin: 0;">${q.label}</td>
                                         <td style="padding: 5px; font-size: 12px; border: 1px solid black; width: 70%; text-align: left; margin: 0;">
                                             ${q.question}
                                             ${q.imageDataUrl ? `
@@ -669,7 +658,6 @@ async function generatePDF(questions, paperDetails, monthyear, midTermText, down
                 }
             }
         }
-        // Add "OR" between question pairs (2 and 3, 4 and 5, 6 and 7)
         if (index % 2 === 0 && index < questionGroups.length - 1) {
             const orHtml = `
                 <div style="width: ${pageWidth - 2 * margin}mm; font-family: Helvetica; text-align: center; font-size: 12px;">
@@ -883,7 +871,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                 new Paragraph({
                     children: [
                         new TextRun({ text: "Note: ", bold: true, font: 'Arial', size: 24 }),
-                        new TextRun({ text: "Question paper consists of Part A (10 marks) and Part B (30 marks).Answer all questions in Part A and Part B has internal choice.", font: 'Arial', size: 24 })
+                        new TextRun({ text: "Question paper consists of Part A (10 marks) and Part B (30 marks). Answer all questions in Part A and Part B has internal choice.", font: 'Arial', size: 24 })
                     ],
                     spacing: { after: 100 }
                 }),
@@ -906,19 +894,19 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                             children: [
                                 new TableCell({
                                     width: { size: 10, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "S. No", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                    children: [new Paragraph({ children: [new TextRun({ text: "S.No", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                 }),
                                 new TableCell({
                                     width: { size: 70, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "Question", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                    children: [new Paragraph({ children: [new TextRun({ text: "Question", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                 }),
                                 new TableCell({
                                     width: { size: 10, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "Unit", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                    children: [new Paragraph({ children: [new TextRun({ text: "Unit", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                 }),
                                 new TableCell({
                                     width: { size: 10, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "B.T Level", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                    children: [new Paragraph({ children: [new TextRun({ text: "B.T Level", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                 })
                             ],
                             tableHeader: true
@@ -927,7 +915,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                             const questionParts = q.question.split('<br>').map(part => part.trim()).filter(part => part.length > 0);
                             const cellChildren = questionParts.map(part => 
                                 new Paragraph({
-                                    children: [new TextRun({ text: part, font: 'Arial', size: 24 })],
+                                    children: [new TextRun({ text: part, font: 'Times New Roman', size: 24 })],
                                     alignment: AlignmentType.LEFT
                                 })
                             );
@@ -950,7 +938,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                     );
                                 } catch (error) {
                                     console.error(`Error loading image for question ${q.label}:`, error);
-                                    cellChildren.push(new Paragraph({ text: "[Image could not be loaded]", font: 'Arial', size: 24 }));
+                                    cellChildren.push(new Paragraph({ children: [new TextRun({ text: "[Image could not be loaded]", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.LEFT }));
                                 }
                             }
 
@@ -958,7 +946,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                 children: [
                                     new TableCell({
                                         width: { size: 10, type: WidthType.PERCENTAGE },
-                                        children: [new Paragraph({ text: q.label, alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                        children: [new Paragraph({ children: [new TextRun({ text: q.label, font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                     }),
                                     new TableCell({
                                         width: { size: 70, type: WidthType.PERCENTAGE },
@@ -966,11 +954,11 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                     }),
                                     new TableCell({
                                         width: { size: 10, type: WidthType.PERCENTAGE },
-                                        children: [new Paragraph({ text: `${q.unit}`, alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                        children: [new Paragraph({ children: [new TextRun({ text: `${q.unit}`, font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                     }),
                                     new TableCell({
                                         width: { size: 10, type: WidthType.PERCENTAGE },
-                                        children: [new Paragraph({ text: q.btLevel || "N/A", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                        children: [new Paragraph({ children: [new TextRun({ text: q.btLevel || "N/A", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                     })
                                 ]
                             });
@@ -996,19 +984,19 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                             children: [
                                 new TableCell({
                                     width: { size: 10, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "S. No", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                    children: [new Paragraph({ children: [new TextRun({ text: "S.No", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                 }),
                                 new TableCell({
                                     width: { size: 70, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "Question", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                    children: [new Paragraph({ children: [new TextRun({ text: "Question", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                 }),
                                 new TableCell({
                                     width: { size: 10, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "Unit", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                    children: [new Paragraph({ children: [new TextRun({ text: "Unit", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                 }),
                                 new TableCell({
                                     width: { size: 10, type: WidthType.PERCENTAGE },
-                                    children: [new Paragraph({ text: "B.T Level", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                    children: [new Paragraph({ children: [new TextRun({ text: "B.T Level", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                 })
                             ],
                             tableHeader: true
@@ -1021,7 +1009,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                 const questionParts = q.question.split('<br>').map(part => part.trim()).filter(part => part.length > 0);
                                 const cellChildren = questionParts.map(part => 
                                     new Paragraph({
-                                        children: [new TextRun({ text: part, font: 'Arial', size: 24 })],
+                                        children: [new TextRun({ text: part, font: 'Times New Roman', size: 24 })],
                                         alignment: AlignmentType.LEFT
                                     })
                                 );
@@ -1044,7 +1032,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                         );
                                     } catch (error) {
                                         console.error(`Error loading image for question ${q.label}:`, error);
-                                        cellChildren.push(new Paragraph({ text: "[Image could not be loaded]", font: 'Arial', size: 24 }));
+                                        cellChildren.push(new Paragraph({ children: [new TextRun({ text: "[Image could not be loaded]", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.LEFT }));
                                     }
                                 }
 
@@ -1052,7 +1040,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                     children: [
                                         new TableCell({
                                             width: { size: 10, type: WidthType.PERCENTAGE },
-                                            children: [new Paragraph({ text: q.label, alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                            children: [new Paragraph({ children: [new TextRun({ text: q.label, font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                         }),
                                         new TableCell({
                                             width: { size: 70, type: WidthType.PERCENTAGE },
@@ -1060,11 +1048,11 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                         }),
                                         new TableCell({
                                             width: { size: 10, type: WidthType.PERCENTAGE },
-                                            children: [new Paragraph({ text: `${q.unit}`, alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                            children: [new Paragraph({ children: [new TextRun({ text: `${q.unit}`, font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                         }),
                                         new TableCell({
                                             width: { size: 10, type: WidthType.PERCENTAGE },
-                                            children: [new Paragraph({ text: q.btLevel || "N/A", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                            children: [new Paragraph({ children: [new TextRun({ text: q.btLevel || "N/A", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                         })
                                     ]
                                 }));
@@ -1075,7 +1063,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                         const questionParts = q.question.split('<br>').map(part => part.trim()).filter(part => part.length > 0);
                                         const cellChildren = questionParts.map(part => 
                                             new Paragraph({
-                                                children: [new TextRun({ text: part, font: 'Arial', size: 24 })],
+                                                children: [new TextRun({ text: part, font: 'Times New Roman', size: 24 })],
                                                 alignment: AlignmentType.LEFT
                                             })
                                         );
@@ -1098,7 +1086,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 );
                                             } catch (error) {
                                                 console.error(`Error loading image for question ${q.label}:`, error);
-                                                cellChildren.push(new Paragraph({ text: "[Image could not be loaded]", font: 'Arial', size: 24 }));
+                                                cellChildren.push(new Paragraph({ children: [new TextRun({ text: "[Image could not be loaded]", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.LEFT }));
                                             }
                                         }
 
@@ -1106,7 +1094,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                             children: [
                                                 new TableCell({
                                                     width: { size: 10, type: WidthType.PERCENTAGE },
-                                                    children: [new Paragraph({ text: q.label, alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                                    children: [new Paragraph({ children: [new TextRun({ text: q.label, font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                                 }),
                                                 new TableCell({
                                                     width: { size: 70, type: WidthType.PERCENTAGE },
@@ -1114,25 +1102,24 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 }),
                                                 new TableCell({
                                                     width: { size: 10, type: WidthType.PERCENTAGE },
-                                                    children: [new Paragraph({ text: `${q.unit}`, alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                                    children: [new Paragraph({ children: [new TextRun({ text: `${q.unit}`, font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                                 }),
                                                 new TableCell({
                                                     width: { size: 10, type: WidthType.PERCENTAGE },
-                                                    children: [new Paragraph({ text: q.btLevel || "N/A", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                                    children: [new Paragraph({ children: [new TextRun({ text: q.btLevel || "N/A", font: 'Times New Roman', size: 24 })], alignment: AlignmentType.CENTER })]
                                                 })
                                             ]
                                         }));
                                     }
                                 }
                             }
-                            // Add "OR" between question pairs (2 and 3, 4 and 5, 6 and 7)
                             if (index % 2 === 0 && index < questionGroups.length - 1) {
                                 rows.push(new TableRow({
                                     children: [
                                         new TableCell({
                                             width: { size: 100, type: WidthType.PERCENTAGE },
                                             columnSpan: 4,
-                                            children: [new Paragraph({ text: "OR", alignment: AlignmentType.CENTER, font: 'Arial', size: 24 })]
+                                            children: [new Paragraph({ children: [new TextRun({ text: "OR", font: 'Arial', size: 24 })], alignment: AlignmentType.CENTER })]
                                         })
                                     ]
                                 }));

@@ -871,7 +871,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                 new Paragraph({
                     children: [
                         new TextRun({ text: "Note: ", bold: true, font: 'Times New Roman', size: 20 }),
-                        new TextRun({ text: "Question paper consists of Part A (10 marks) and Part B (30 marks). Answer all questions in Part A and Part B has internal choice.", font: 'Times New Roman', size: 18 })
+                        new TextRun({ text: "Question paper consists of Part A (10 marks) and Part B (30 marks). Answer all questions in Part A and Part B has internal choice.", font: 'Times New Roman', size: 20 })
                     ],
                     spacing: { after: 100 }
                 }),

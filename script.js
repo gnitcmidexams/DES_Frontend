@@ -714,7 +714,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                         new TextRun({
                             text: `Subject Code: ${sessionStorage.getItem('subjectCode') || paperDetails.subjectCode}`,
                             bold: true,
-                            font: 'Arial',
+                            font: 'Times New Roman',
                             size: 24
                         })
                     ],
@@ -737,7 +737,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                             text: `B.Tech ${paperDetails.year} Year ${paperDetails.semester} Semester ${midTermText} Examinations ${monthyear}`,
                             bold: true,
                             size: 28,
-                            font: 'Arial'
+                            font: 'Times New Roman'
                         })
                     ],
                     alignment: AlignmentType.CENTER,
@@ -747,7 +747,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                     children: [
                         new TextRun({
                             text: `(${paperDetails.regulation} Regulation)`,
-                            font: 'Arial',
+                            font: 'Times New Roman',
                             size: 24
                         })
                     ],
@@ -775,7 +775,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: "Time: 90 Min.",
                                                     bold: true,
-                                                    font: 'Arial',
+                                                    font: 'Times New Roman',
                                                     size: 24
                                                 })
                                             ],
@@ -791,7 +791,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: "Max Marks: 40",
                                                     bold: true,
-                                                    font: 'Arial',
+                                                    font: 'Times New Roman',
                                                     size: 24
                                                 })
                                             ],
@@ -824,7 +824,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: `Subject: ${paperDetails.subject}`,
                                                     bold: true,
-                                                    font: 'Arial',
+                                                    font: 'Times New Roman',
                                                     size: 24
                                                 })
                                             ],
@@ -835,7 +835,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: `Branch: ${sessionStorage.getItem('branch') || paperDetails.branch}`,
                                                     bold: true,
-                                                    font: 'Arial',
+                                                    font: 'Times New Roman',
                                                     size: 24
                                                 })
                                             ],
@@ -852,7 +852,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                                 new TextRun({
                                                     text: `Date: ${sessionStorage.getItem('examDate') || ''}`,
                                                     bold: true,
-                                                    font: 'Arial',
+                                                    font: 'Times New Roman',
                                                     size: 24
                                                 })
                                             ],
@@ -870,7 +870,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                 }),
                 new Paragraph({
                     children: [
-                        new TextRun({ text: "Note: ", bold: true, font: 'Arial', size: 24 }),
+                        new TextRun({ text: "Note: ", bold: true, font: 'Times New Roman', size: 24 }),
                         new TextRun({ text: "Question paper consists of Part A (10 marks) and Part B (30 marks). Answer all questions in Part A and Part B has internal choice.", font: 'Arial', size: 24 })
                     ],
                     spacing: { after: 100 }

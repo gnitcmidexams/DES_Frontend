@@ -773,7 +773,7 @@ async function generateWord(questions, paperDetails, monthyear, midTermText, dow
                                         new Paragraph({
                                             children: [
                                                 new TextRun({
-                                                    text: "Time: 90 Min.",
+                                                    text: "Time: 120 Min.",
                                                     bold: true,
                                                     font: 'Times New Roman',
                                                     size: 20
